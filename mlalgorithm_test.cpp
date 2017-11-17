@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-
+void naivebayes_test();
 int algorithm_selection = 0;
 
 char* algorithm_list[] =
@@ -17,8 +17,7 @@ void print_algorithm_selection()
 	printf("\n");
 	for (; temp[index] != NULL; )
 	{
-		printf("[%d] %s ", index, temp[index]);
-		printf("\n");
+		printf("[%d] %s \n", index, temp[index]);
 		index++;
 	}
 
@@ -45,5 +44,5 @@ void print_algorithm_selection()
 int main()
 {
 	print_algorithm_selection();
-
+        naivebayes_test();
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -x
-CC="g++ -g3 -O0 -Wall "
+CC="g++ -g3 -O0 -Wall -std=c++11 "
 CC="$CC -I naivebayes"
 
 mkdir -p objs

@@ -1,24 +1,32 @@
 #include <stdio.h>
+#include <functional>
 
 void naivebayes_test();
 int algorithm_selection = 0;
 
-char* algorithm_list[] =
+using namespace std;
+typedef std::function<void()> Functor;
+
+typedef struct
 {
-	"naivebayes",
-	"svm",
-	NULL
+	char* name;
+	Functor api;
+}AlgorithmAttr;
+
+AlgorithmAttr algorithm_list[] =
+{
+	{"naivebayes",naivebayes_test},
+	{"svm",NULL}
 };
 
 void print_algorithm_selection()
 {
-	char** temp = algorithm_list;
+	AlgorithmAttr* temp = algorithm_list;
 	int index = 0;
 	printf("\n");
-	for (; temp[index] != NULL; )
+	for (; index < sizeof(algorithm_list)/sizeof(algorithm_list[0]); index++)
 	{
-		printf("[%d] %s \n", index, temp[index]);
-		index++;
+		printf("[%d] %s \n", index, temp[index].name);
 	}
 
 	printf("please select the machine learning algorithm \n");
@@ -38,11 +46,11 @@ void print_algorithm_selection()
 		else
 			printf("wrong input！");
 	}
-	printf("you have selected [%d] %s \n", algorithm_selection, algorithm_list[algorithm_selection]);
+	printf("you have selected [%d] %s \n", algorithm_selection, algorithm_list[algorithm_selection].name);
 }
 
 int main()
 {
 	print_algorithm_selection();
-        naivebayes_test();
+	algorithm_list[algorithm_selection].api();
 }

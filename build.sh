@@ -11,5 +11,5 @@ $CC -c naivebayes/naivebayes.cpp -o objs/naivebayes.o
 
 ar rcs objs/libml.a objs/*.o
 
-g++ -g -Wall mlalgorithm_test.cpp -o objs/mlalgorithm_test objs/libml.a
+g++ -g -Wall -std=c++11 mlalgorithm_test.cpp -o objs/mlalgorithm_test objs/libml.a
 

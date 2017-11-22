@@ -2,6 +2,12 @@
 #include <functional>
 
 void naivebayes_test();
+void apriori_test();
+void fpgrowth_test();
+void knn_test();
+void decisiontree_test();
+void cart_test();
+void svm_test();
 int algorithm_selection = 0;
 
 using namespace std;
@@ -16,7 +22,12 @@ typedef struct
 AlgorithmAttr algorithm_list[] =
 {
 	{"naivebayes",naivebayes_test},
-	{"svm",NULL}
+	{"apriori",apriori_test},
+	{"fpgrowth",fpgrowth_test},
+	{"knn",knn_test},
+	{"decisiontree",decisiontree_test},
+	{"cart",cart_test},
+	{"svm",svm_test},
 };
 
 void print_algorithm_selection()

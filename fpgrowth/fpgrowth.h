@@ -59,6 +59,7 @@ private:
     void createFPTree(map<vector<string>,int> dataSet, TreeNode* &header, vector<FPNode*> &fpHeader, int min);
     void releaseTree(TreeNode* header);
     void updateFPHeader(TreeNode* node, vector<FPNode*>& fpHeader);
+    void generateTree(TreeNode* &header, vector<FPNode*> &fpHeader, vector<vector<string>> dataSetVec, map<string, int> dataSetMap, bool reset);
     void generateTreeRecursive(TreeNode* &header, vector<FPNode*> &fpHeader, vector<PAIR> filterData);
     void updateData(vector<string> data);
     vector<string> convertDataSet(string dataStr);

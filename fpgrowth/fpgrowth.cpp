@@ -217,6 +217,40 @@ void FPGrowth::removeData(map<string, int>& dataSet, int min)
     }
 }
 
+void FPGrowth::generateTree(TreeNode* &header, vector<FPNode*> &fpHeader,
+                        vector<vector<string>> dataSetVec, map<string, int> dataSetMap, bool reset)
+{
+    //loop each dataset
+    auto dataiter = dataSetVec.begin();
+    for(; dataiter != dataSetVec.end(); dataiter++)
+    {
+        map<string, int> strMap;
+
+        auto striter = (*dataiter).begin();
+        for(; striter != (*dataiter).end(); striter++)
+        {
+            if(dataSetMap.find(*striter) != dataSetMap.end())
+            {
+                strMap[*striter] = dataSetMap[*striter];
+            }
+        }
+
+        vector<PAIR> sortedStrMap(strMap.begin(),strMap.end());
+        sort(sortedStrMap.begin(), sortedStrMap.end(), cmpbyvalue());
+        if(reset)
+        {
+            //reset the count to 1
+            for (int i = 0; i != sortedStrMap.size(); ++i)
+            {
+                sortedStrMap[i].second = 1;
+            }
+        }
+        //create the tree according to the sortedStrMap with recursive method
+        //and update the mFPHeader
+        generateTreeRecursive(header, fpHeader, sortedStrMap);
+    }
+}
+
 void FPGrowth::createTree(int min)
 {
     //remove the item whose occurrence is less than min
@@ -225,33 +259,7 @@ void FPGrowth::createTree(int min)
         return;
     //create tree's root
     mTreeHeader = createTreeHeader();
-    //loop each dataset
-    auto dataiter = mDataSetVec.begin();
-    for(; dataiter != mDataSetVec.end(); dataiter++)
-    {
-        map<string, int> strMap;
-
-        auto striter = (*dataiter).begin();
-        for(; striter != (*dataiter).end(); striter++)
-        {
-            if(mDataSetMap.find(*striter) != mDataSetMap.end())
-            {
-                strMap[*striter] = mDataSetMap[*striter];
-            }
-        }
-
-        vector<PAIR> sortedStrMap(strMap.begin(),strMap.end());
-        sort(sortedStrMap.begin(), sortedStrMap.end(), cmpbyvalue());
-        //reset the count to 1
-        for (int i = 0; i != sortedStrMap.size(); ++i)
-        {
-            sortedStrMap[i].second = 1;
-        }
-        //create the tree according to the sortedStrMap with recursive method
-        //and update the mFPHeader
-        generateTreeRecursive(mTreeHeader, mFPHeader, sortedStrMap);
-    }
-
+    generateTree(mTreeHeader, mFPHeader, mDataSetVec, mDataSetMap, true);
     if(1)
     {
         printf("dump tree\n");
@@ -292,6 +300,7 @@ TreeNode* FPGrowth::createTreeHeader()
 void FPGrowth::createFPTree(map<vector<string>,int> dataSet,
                             TreeNode* &header, vector<FPNode*> &fpHeader, int min)
 {
+    vector<vector<string>> dataSetVec;
     map<string, int> dataSetMap;
     auto iter = dataSet.begin();
     for(; iter != dataSet.end(); iter++)
@@ -301,6 +310,7 @@ void FPGrowth::createFPTree(map<vector<string>,int> dataSet,
         {
             dataSetMap[*iter1] += (*iter).second;
         }
+        dataSetVec.push_back((*iter).first);
     }
     //remove the item whose occurrence is less than min
     removeData(dataSetMap, min);
@@ -309,27 +319,7 @@ void FPGrowth::createFPTree(map<vector<string>,int> dataSet,
         return;
     //create tree's root
     header = createTreeHeader();
-    //loop each dataset
-    iter = dataSet.begin();
-    for(; iter != dataSet.end(); iter++)
-    {
-        map<string, int> strMap;
-
-        auto striter = (*iter).first.begin();
-        for(; striter != (*iter).first.end(); striter++)
-        {
-            if(dataSetMap.find(*striter) != dataSetMap.end())
-            {
-                strMap[*striter] = dataSetMap[*striter];
-            }
-        }
-
-        vector<PAIR> sortedStrMap(strMap.begin(),strMap.end());
-        sort(sortedStrMap.begin(), sortedStrMap.end(), cmpbyvalue());
-        //create the tree according to the sortedStrMap with recursive method
-        //and update the mFPHeader
-        generateTreeRecursive(header, fpHeader, sortedStrMap);
-    }
+    generateTree(header, fpHeader, dataSetVec, dataSetMap, false);
 }
 
 void FPGrowth::mineTree(TreeNode* header, vector<FPNode*> fpHeader, int min,

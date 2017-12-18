@@ -63,7 +63,7 @@ vector<float> SVM::getAttribute(string dataStr, float& label)
 float SVM::runKernel(vector<float> x, vector<float> y)
 {
     if (mKernelName.compare("rbf") == 0) {
-        vector<float> k = minus(x, y);
+        vector<float> k = minus(y, x);
         float result = dot(k, k);
         result = exp(result / (-1 * pow(mKernelParam, 2)));
         return result;
@@ -112,8 +112,8 @@ float SVM::calcError(int index)
         kernelResult.push_back(runKernel(mDataSet[i], mDataSet[index]));
     }
 
-    int u = dot(multiply(mAlpha, mDataLabel), kernelResult) + mBias;
-    int error = u - mDataLabel[index];
+    float u = dot(multiply(mAlpha, mDataLabel), kernelResult) + mBias;
+    float error = u - mDataLabel[index];
     return error;
 }
 
@@ -126,7 +126,7 @@ int SVM::selectAnotherIndex(int index, float error, float& nextError)
     auto iter = mErrorCache.begin();
     for(; iter != mErrorCache.end(); iter++) {
         int k = iter->first;
-        if((iter->second != 0.0) && (k != index)) {
+        if(k != index) {
             int errorK = calcError(k);
             float deltaError = abs(errorK - error);
             if(deltaError > maxDeltaError) {
@@ -269,7 +269,7 @@ void SVM::train()
 
 void svm_test()
 {
-    SVM* svm = new SVM(200, 0.0001, 10000, "rbf", 20);
+    SVM* svm = new SVM(200, 0.0001, 10000, "rbf", 1.3);
 
     FILE* file = fopen("dataset.txt", "rt");
 

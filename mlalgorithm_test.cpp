@@ -55,7 +55,7 @@ void print_algorithm_selection()
 			break;
 		}
 		else
-			printf("wrong input！");
+			printf("wrong input!\n");
 	}
 	printf("you have selected [%d] %s \n", algorithm_selection, algorithm_list[algorithm_selection].name);
 }

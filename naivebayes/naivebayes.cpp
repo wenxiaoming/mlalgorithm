@@ -1,40 +1,8 @@
-#include <stdio.h>
-#include <vector>
-#include <string>
+#include "naivebayes.h"
 
-using namespace std;
-
-typedef struct
+naivebayes::naivebayes(int num)
 {
-    int attrvalue;
-    int count;
-}Attribute;
-
-class naivebayes
-{
-public:
-    naivebayes(int attrnum);
-    ~naivebayes();
-    void loadPositiveSet(vector<string> trainset);
-    void loadNegetiveSet(vector<string> trainset);
-    void train();
-    void classify(string testset);
-private:
-    vector<int> getAttribute(string datastring);
-    void splitSet(string datastring, vector<vector<Attribute>>& attrarray);
-    void printDataSet(vector<vector<Attribute>> attrarray);
-    vector<string> trainSet;
-    vector<int> labelSet;
-    int attributeNum;
-    vector<vector<Attribute>> positiveAttrArray;
-    vector<vector<Attribute>> negitiveAttrArray;
-    float positiveProb;//probability of positive dataset
-    float negetiveProb;//probability of positive dataset
- };
-
-naivebayes::naivebayes(int attrnum)
-{
-    attributeNum = attrnum;
+    mAttributeNum = num;
 }
 
 naivebayes::~naivebayes()
@@ -42,101 +10,91 @@ naivebayes::~naivebayes()
 
 }
 
-void naivebayes::loadPositiveSet(vector<string> trainset)
+void naivebayes::loadPositiveSet(vector<string> trainSet)
 {
-    for(auto iter = trainset.begin(); iter < trainset.end(); iter++)
-    {
-        trainSet.push_back(*iter);
-        labelSet.push_back(1);
+    for(auto iter = trainSet.begin(); iter < trainSet.end(); iter++) {
+        mTrainSet.push_back(*iter);
+        mLabelSet.push_back(1);
     }
 }
 
-void naivebayes::loadNegetiveSet(vector<string> trainset)
+void naivebayes::loadNegetiveSet(vector<string> trainSet)
 {
-    for(auto iter = trainset.begin(); iter < trainset.end(); iter++)
-    {
-        trainSet.push_back(*iter);
-        labelSet.push_back(0);
+    for(auto iter = trainSet.begin(); iter < trainSet.end(); iter++) {
+        mTrainSet.push_back(*iter);
+        mLabelSet.push_back(0);
     }
 }
 
-vector<int> naivebayes::getAttribute(string datastring)
+vector<int> naivebayes::getAttribute(string dataStr)
 {
-    const char* temp = datastring.c_str();
-    vector<int> attrivector;
-
-    for(; *temp != '\0'; temp++)
-    {
+    const char* str = dataStr.c_str();
+    vector<int> attrVector;
+    int index = 0;
+    for (; index < dataStr.size(); ) {
         //find the value of the specific attribute
-         if(!isdigit(*temp))
+        if (isspace(*str)) {
+            index++;
+            str++;
             continue;
-
-        int value = 0;
-        while(*temp >= '0'&& *temp <= '9')
-        {
-            value *= 10;
-            value += (*temp-'0');
-            temp++;
         }
 
-        attrivector.push_back(value);
+        int value = 0;
+        while(*str >= '0'&& *str <= '9') {
+            value *= 10;
+            value += (*str -'0');
+            str++;
+            index++;
+        }
+		attrVector.push_back(value);
     }
-
-    return attrivector;
+    return attrVector;
 }
 
-void naivebayes::splitSet(string datastring, vector<vector<Attribute>>& attrarray)
+void naivebayes::splitSet(string dataStr, vector<vector<Attribute>>& attrArray)
 {
-    vector<int> attrivector = getAttribute(datastring);
-    auto attriter = attrarray.begin();
-    bool empty = attrarray.empty();
-    auto dataiter = attrivector.begin();
+    vector<int> attribute = getAttribute(dataStr);
+    auto attriter = attrArray.begin();
+    bool empty = attrArray.empty();
+    auto dataiter = attribute.begin();
 
-    for(; dataiter != attrivector.end(); dataiter++)
-    {
+    for(; dataiter != attribute.end(); dataiter++) {
         int value = *dataiter;
 
         bool found = false;
-        if(!empty)
-        {
+        if(!empty) {
             auto iter = (*attriter).begin();
-            for(; iter != (*attriter).end(); iter++)
-            {
-                if(value == (*iter).attrvalue)
-                {
+            for(; iter != (*attriter).end(); iter++) {
+                if(value == (*iter).attrvalue) {
                     (*iter).count++;
                     found = true;
                 }
             }
         }
 
-        if(!found)
-        {
+        if(!found) {
             Attribute attr;
             attr.attrvalue = value;
             attr.count = 1;
-            if(empty)
-            {
+            if(empty) {
                 vector<Attribute> attriVec;
                 attriVec.push_back(attr);
-                attrarray.push_back(attriVec);
-            }
-            else
-            {
+                attrArray.push_back(attriVec);
+            } else {
                 (*attriter).push_back(attr);
             }
         }
 
-        attriter++;
+        if (!empty)
+            attriter++;
     }
 }
 
-void naivebayes::printDataSet(vector<vector<Attribute>> attrarray)
+void naivebayes::printDataSet(vector<vector<Attribute>> attrArray)
 {
-    auto attriter = attrarray.begin();
+    auto attriter = attrArray.begin();
     int index = 0;
-    for(; attriter != attrarray.end(); attriter++)
-    {
+    for(; attriter != attrArray.end(); attriter++) {
         auto iter = (*attriter).begin();
         printf("x%d:\n", index);
         for(; iter != (*attriter).end(); iter++)
@@ -149,52 +107,48 @@ void naivebayes::train()
 {
     int positivenum = 0;
     int negitivenum = 0;
-    auto labeliter = labelSet.begin();
-    for(auto iter = trainSet.begin(); iter < trainSet.end(); iter++)
-    {
-        if(*labeliter == 1)
-        {//positive type
-            splitSet(*iter, positiveAttrArray);
+    auto labeliter = mLabelSet.begin();
+    for(auto iter = mTrainSet.begin(); iter < mTrainSet.end(); iter++) {
+        if(*labeliter == 1) {
+            //positive type
+            splitSet(*iter, mPositiveAttrArray);
             positivenum++;
-        }
-        else
-        {//negetive type
-            splitSet(*iter, negitiveAttrArray);
+        } else {
+            //negetive type
+            splitSet(*iter, mNegitiveAttrArray);
             negitivenum++;
         }
         labeliter++;
     }
 
     printf("*******positive dataset************\n");
-    printDataSet(positiveAttrArray);
+    printDataSet(mPositiveAttrArray);
     printf("*******negetive dataset************\n");
-    printDataSet(negitiveAttrArray);
+    printDataSet(mNegitiveAttrArray);
 
     //calculate p0 and p1
-    positiveProb = (float)positivenum / (positivenum+negitivenum);
-    negetiveProb = 1- positiveProb;
+    mPositiveProb = (float)positivenum / (positivenum+negitivenum);
+    mNegetiveProb = 1- mPositiveProb;
 
-    printf("positiveProb:%f negetiveProb:%f \n", positiveProb, negetiveProb);
+    printf("positiveProb:%f negetiveProb:%f \n", mPositiveProb, mNegetiveProb);
 }
 
 void naivebayes::classify(string testset)
 {
     vector<int> dataiter = getAttribute(testset);
     //calculate the probability
-    float p0 = positiveProb;
-    float p1 = negetiveProb;
+    float p0 = mPositiveProb;
+    float p1 = mNegetiveProb;
     auto iter = dataiter.begin();
-    auto positiveiter = positiveAttrArray.begin();
-    auto negetiveiter = negitiveAttrArray.begin();
-    for(; iter != dataiter.end(); iter++)
-    {
+    auto positiveiter = mPositiveAttrArray.begin();
+    auto negetiveiter = mNegitiveAttrArray.begin();
+    for(; iter != dataiter.end(); iter++) {
         //multiply each attribute's condition probalility
         int value = *iter;
         int count = 0;
 
         auto attriiter = (*positiveiter).begin();
-        for(; attriiter!= (*positiveiter).end(); attriiter++)
-        {
+        for(; attriiter!= (*positiveiter).end(); attriiter++) {
             if((*attriiter).attrvalue == value)
                 count = (*attriiter).count;
         }
@@ -203,8 +157,7 @@ void naivebayes::classify(string testset)
         positiveiter++;
 
         attriiter = (*negetiveiter).begin();
-        for(; attriiter!= (*negetiveiter).end(); attriiter++)
-        {
+        for(; attriiter!= (*negetiveiter).end(); attriiter++) {
             if((*attriiter).attrvalue == value)
                 count = (*attriiter).count;
         }

@@ -22,6 +22,7 @@ file(GLOB_RECURSE SRCS "${PROJECT_SOURCE_DIR}/apriori/*.cpp"
                         "${PROJECT_SOURCE_DIR}/fpgrowth/*.cpp"
                         "${PROJECT_SOURCE_DIR}/knn/*.cpp"
                         "${PROJECT_SOURCE_DIR}/naivebayes/*.cpp"
+                        "${PROJECT_SOURCE_DIR}/kmeans/*.cpp"
                         "${PROJECT_SOURCE_DIR}/svm/*.cpp")
 
 file(GLOB_RECURSE MAIN_SRCS "${PROJECT_SOURCE_DIR}/mlalgorithm_test.cpp")

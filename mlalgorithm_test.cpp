@@ -9,6 +9,7 @@ void decisiontree_test();
 void cart_test();
 void svm_test();
 void kmeans_test();
+void logisticregression_test();
 
 int algorithm_selection = 0;
 
@@ -28,7 +29,8 @@ AlgorithmAttr algorithm_list[] = {
     {"decisiontree",decisiontree_test},
     {"cart",cart_test},
     {"svm",svm_test},
-    {"kmeans",kmeans_test}
+    {"kmeans",kmeans_test},
+    {"logisticregression",logisticregression_test}
 };
 
 void print_algorithm_selection()

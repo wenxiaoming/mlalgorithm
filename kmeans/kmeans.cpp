@@ -286,4 +286,6 @@ void kmeans_test()
 
     if (kmeans)
         delete kmeans;
+
+    fclose(file);
 }

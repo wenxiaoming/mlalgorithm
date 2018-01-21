@@ -171,4 +171,6 @@ void logisticregression_test()
     lg->train(150);
 
     float label = lg->predict("1.0 2.1 2.50 0");
+    delete lg;
+    fclose(file);
 }

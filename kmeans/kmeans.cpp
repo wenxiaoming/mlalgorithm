@@ -135,9 +135,10 @@ vector<ErrorItem> KMeans::findCluster(int clusterIndex, int splitNum, vector<vec
         item.error = 0.0f;
         clusterError.push_back(item);
     }
-
+ 
+    int loop = 0;
     bool change = true;
-    while (change) {
+    while ((loop < 1000) && (change)) {
         change = false;
         auto iter = clusterError.begin();
         for (int j = 0; j < dataSet.size(); j++) {
@@ -167,6 +168,7 @@ vector<ErrorItem> KMeans::findCluster(int clusterIndex, int splitNum, vector<vec
             if(newDataSet.size() != 0)
                 currCenter[i] = mean(newDataSet);
         }
+        loop++;
     }
     return clusterError;
 }

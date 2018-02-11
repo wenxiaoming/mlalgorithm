@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <string.h>
+#include <limits.h>
 #include <map>
 #include <algorithm>
 #include <math.h>
@@ -27,9 +29,13 @@ public:
     void loadDataSet(vector<string> dataSet);
     void loadAttribute(vector<string> atribute);
     void createTree();
+    void pruneTree();
     string predict(string data);
     void saveTree2Dot(string filename);
 private:
+    int getAttrIndex(string name);
+    float squareSum(vector<vector<float>> dataSetVec, float delta);
+    TreeNode* pruneTreeRecursive(TreeNode* header, vector<vector<float>> dataSetVec, int depth=0);
     float mean(vector<vector<float>> dataSet, int index);
     float calcError(vector<vector<float>> dataSetVec);
     float calcVariable(vector<float> dataSet);

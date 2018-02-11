@@ -115,7 +115,7 @@ float CART::mean(vector<vector<float>> dataSet, int index)
 
 int CART::selectBestAttribute(vector<vector<float>> dataSetVec, float& bestValue)
 {
-    int numAttribute = dataSetVec[0].size()-1;
+    int numAttribute = dataSetVec[0].size() - 1;
 
     int bestAttribute = -1;
     float bestError = UINT_MAX;
@@ -124,15 +124,15 @@ int CART::selectBestAttribute(vector<vector<float>> dataSetVec, float& bestValue
     int smallDataSetSize = 0;
     int bigDataSetSize = 0;
 
-    for(int i = 0; i < numAttribute; i++) {
+    for (int i = 0; i < numAttribute; i++) {
         //get the unique value for ith attribute
         map<float, int> uniqueMap;
         auto iter = dataSetVec.begin();
-        for(; iter < dataSetVec.end(); iter++)
+        for (; iter < dataSetVec.end(); iter++)
             uniqueMap[(*iter)[i]] += 1;
 
         auto itermap = uniqueMap.begin();
-        for(; itermap != uniqueMap.end(); itermap++) {
+        for (; itermap != uniqueMap.end(); itermap++) {
             vector<vector<float>> smallDataSetVec;
             vector<vector<float>> bigDataSetVec;
 
@@ -151,12 +151,110 @@ int CART::selectBestAttribute(vector<vector<float>> dataSetVec, float& bestValue
         }
     }
 
-    if(((originError - bestError) < errorThreshold) || (smallDataSetSize < splitThreshold)
-       || (bigDataSetSize < splitThreshold)) {
-        bestValue = mean(dataSetVec, dataSetVec[0].size()-1);
+    if (((originError - bestError) < errorThreshold) || (smallDataSetSize < splitThreshold)
+        || (bigDataSetSize < splitThreshold)) {
+        bestValue = mean(dataSetVec, dataSetVec[0].size() - 1);
         return -1;
     }
     return bestAttribute;
+}
+
+int CART::getAttrIndex(string name)
+{
+    int index = 0;
+    for (; index < mAttribute.size(); index++) {
+        if (mAttribute[index].compare(name.c_str()) == 0)
+            return index;
+    }
+    return -1;
+}
+
+float CART::squareSum(vector<vector<float>> dataSetVec, float delta)
+{
+    if (dataSetVec.size() == 0)
+        return 0.0f;
+
+    auto iter = dataSetVec.begin();
+    int elemSize = dataSetVec[0].size();
+    float result = 0.0f;
+    for (; iter != dataSetVec.end(); iter++) {
+        result += pow((*iter)[elemSize - 1] - delta, 2);
+    }
+
+    return result;
+}
+
+TreeNode* CART::pruneTreeRecursive(TreeNode* header, vector<vector<float>> dataSetVec, int depth)
+{
+    for (int i = 0; i < depth; i++)
+        printf(" ");
+
+    printf(" (%s  %f)\n", header->splitAttr.c_str(), header->splitValue);
+
+    map<string, _TreeNode*> children = header->children;
+
+    if ((header == NULL) || (children.size() == 0)) {
+
+    }
+
+    auto iter = children.begin();
+    bool leftLeaf = false;
+    bool rightLeaf = false;
+
+    TreeNode* leftChild = NULL;
+    TreeNode* rightChild = NULL;
+    for (; iter != children.end(); iter++) {
+        if ((iter->first).compare("left") == 0) {
+            leftChild = iter->second;
+            if ((iter->second)->splitAttr.compare("leaf") == 0)
+                leftLeaf = true;
+        }
+        if ((iter->first).compare("right") == 0) {
+            rightChild = iter->second;
+            if ((iter->second)->splitAttr.compare("leaf") == 0)
+                rightLeaf = true;
+        }
+    }
+    vector<vector<float>> smallDataSetVec;
+    vector<vector<float>> bigDataSetVec;
+    int attrIndex = getAttrIndex(header->splitAttr);
+    float attrValue = header->splitValue;
+
+    if(attrIndex != -1)//not leaf node
+        splitDataSet(smallDataSetVec, bigDataSetVec, dataSetVec, attrIndex, attrValue);
+
+    if (leftChild && (smallDataSetVec.size() != 0))
+        leftChild = pruneTreeRecursive(leftChild, smallDataSetVec, depth + 1);
+
+    if (rightChild && (bigDataSetVec.size() != 0))
+        rightChild = pruneTreeRecursive(rightChild, bigDataSetVec, depth + 1);
+
+    if (leftLeaf && rightLeaf) {
+        printf("try to merge left:%f right:%f \n", leftChild->splitValue, rightChild->splitValue);
+
+        float notMergeError = squareSum(smallDataSetVec, leftChild->splitValue) +
+                              squareSum(bigDataSetVec, rightChild->splitValue);
+
+        float treeMean = (leftChild->splitValue + rightChild->splitValue) / 2.0;
+        float mergeError = squareSum(dataSetVec, treeMean);
+        if (mergeError < notMergeError) {
+            printf("merge \n");
+            delete leftChild;
+            delete rightChild;
+            delete header;
+            TreeNode* newNode = new TreeNode;
+            newNode->splitValue = treeMean;
+            newNode->splitAttr = "leaf";
+            return newNode;
+        }
+    }
+
+    return header;
+}
+
+void CART::pruneTree()
+{
+    pruneTreeRecursive(mHeader, mDataSet);
 }
 
 void CART::createTree()
@@ -271,7 +369,7 @@ void CART::saveTree2Dot(string filename)
 #define MAX_LINE 1024
 void cart_test()
 {
-    CART* cart = new CART(1, 4);
+    CART* cart = new CART(0.01, 1);
 
     vector<string> dataSet;
 
@@ -301,6 +399,10 @@ void cart_test()
     cart->createTree();
 
     cart->saveTree2Dot("cart.dot");
+
+    cart->pruneTree();
+
+    cart->saveTree2Dot("cart_pruned.dot");
 
     if (file)
         fclose(file);

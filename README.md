@@ -15,7 +15,7 @@ On other platforms like Windows, it will generate a Visual Studio project throug
 ## how to run
 
  ```
-$ ./bin/mlalgorithm.exe
+$ ./bin/mlalgorithm
 
 [0] naivebayes
 [1] apriori

@@ -24,7 +24,9 @@ file(GLOB_RECURSE SRCS "${PROJECT_SOURCE_DIR}/apriori/*.cpp"
                         "${PROJECT_SOURCE_DIR}/naivebayes/*.cpp"
                         "${PROJECT_SOURCE_DIR}/kmeans/*.cpp"
                         "${PROJECT_SOURCE_DIR}/logisticregression/*.cpp"
-                        "${PROJECT_SOURCE_DIR}/svm/*.cpp")
+                        "${PROJECT_SOURCE_DIR}/svm/*.cpp"
+                        "${PROJECT_SOURCE_DIR}/common/*.cpp"
+                        "${PROJECT_SOURCE_DIR}/adaboost/*.cpp")
 
 file(GLOB_RECURSE MAIN_SRCS "${PROJECT_SOURCE_DIR}/mlalgorithm_test.cpp")
 

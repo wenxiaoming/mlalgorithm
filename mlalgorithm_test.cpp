@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <functional>
 
+void adaboost_test();
 void naivebayes_test();
 void apriori_test();
 void fpgrowth_test();
@@ -30,7 +31,8 @@ AlgorithmAttr algorithm_list[] = {
     {"cart",cart_test},
     {"svm",svm_test},
     {"kmeans",kmeans_test},
-    {"logisticregression",logisticregression_test}
+    {"logisticregression",logisticregression_test},
+    {"adaboost",adaboost_test}
 };
 
 void print_algorithm_selection()

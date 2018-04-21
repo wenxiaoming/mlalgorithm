@@ -24,5 +24,8 @@ $ ./bin/mlalgorithm
 [4] decisiontree
 [5] cart
 [6] svm
+[7] kmeans
+[8] logisticregression
+[9] adaboost
 please select the machine learning algorithm
  ```

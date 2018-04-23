@@ -22,6 +22,17 @@ float multiply(vector<float> a, vector<float> b)
     return result;
 }
 
+vector<float> dotproduct(vector<float> a, vector<float> b)
+{
+	int i = 0;
+	vector<float> result;
+	for (; i < a.size(); i++) {
+		float value = a[i] * b[i];
+		result.push_back(value);
+	}
+	return result;
+}
+
 vector<float> multiply(vector<float> a, float b)
 {
     int i = 0;

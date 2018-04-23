@@ -1,3 +1,5 @@
+#include <limits>
+#include <math.h>
 #include "adaboost.h"
 #include "../common/math.h"
 #include "../common/dataset.h"
@@ -45,13 +47,16 @@ void AdaBoost::train(int iter)
         bestStump.alpha = alhpa;
         mWeakClass.push_back(bestStump);
         //update mWeight;
-        float expon = multiply(multiply(mLabel, -1*alhpa), bestPredict);
-        mWeight = multiply(mWeight, exp(expon));
+        vector<float> exponArray = dotproduct(multiply(mLabel, -1*alhpa), bestPredict);
+        for (int j = 0; j < mWeight.size(); j++) {
+            mWeight[j] = mWeight[j]* exp(exponArray[j]);
+        }
         normalize(mWeight);
 
         aggPredict = add(aggPredict, multiply(bestPredict, alhpa));
         vector<float> aggErrors = comparesign(aggPredict, mLabel);
         float errorRate = sum(aggErrors)/mDataSetCount;
+        printf("errorRate:%f \n", errorRate);
         if (errorRate == 0.0)
             break;
     }
@@ -66,13 +71,13 @@ void AdaBoost::findMinMax(int attrIndx, float& min, float& max)
 {
     min = INT_MAX;
     max = -INT_MAX;
-    int attrNum = mDataSet[0].size();
-    for (int i = 0; i < attrNum; i++) {
-        if (mDataSet[attrIndx][i] > max)
-            max = mDataSet[attrIndx][i];
 
-        if (mDataSet[attrIndx][i] < min)
-            min = mDataSet[attrIndx][i];
+    for (int i = 0; i < mDataSetCount; i++) {
+        if (mDataSet[i][attrIndx] > max)
+            max = mDataSet[i][attrIndx];
+
+        if (mDataSet[i][attrIndx] < min)
+            min = mDataSet[i][attrIndx];
     }
 }
 
@@ -114,7 +119,7 @@ Stump AdaBoost::createStump(float& minError, vector<float>& bestPredict)
                     bestStump.index = i;
                     bestStump.dir = (SplitDirection)dir;
                     bestStump.thresh = thresh;
-                    bestPredict.assign(verifyError.begin(), verifyError.end());
+                    bestPredict.assign(verifyResult.begin(), verifyResult.end());
                 }
             }
         }

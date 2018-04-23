@@ -1,5 +1,6 @@
 # mlalgorithm
 This project implements different machine learning algorithms in C++
+Some idea of the algorithm is from the book Machine Learning in Action.
 
 ## how to build
 

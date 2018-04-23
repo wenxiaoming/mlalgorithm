@@ -13,6 +13,7 @@ using namespace std;
 bool samesign(float a, float b);
 vector<float> add(vector<float> a, vector<float> b);
 float multiply(vector<float> a, vector<float> b);
+vector<float> dotproduct(vector<float> a, vector<float> b);
 vector<float> multiply(vector<float> a, float b);
 float sum(vector<float> a);
 void normalize(vector<float>& a);

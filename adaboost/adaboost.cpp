@@ -62,9 +62,38 @@ void AdaBoost::train(int iter)
     }
 }
 
-void AdaBoost::predict(vector<string> dataset)
+void AdaBoost::predict(vector<string> dataSet)
 {
+    //load dataset
+    vector<vector<float>> testDataSet;
+    vector<float> testLabel;
+    for (auto iter = dataSet.begin(); iter < dataSet.end(); iter++) {
+        vector<float> data = getAttribute(*iter);
+        if (data.size() != 0) {
+            vector<float> attrData;
+            attrData.assign(data.begin(), data.end() - 1);
+            testDataSet.push_back(attrData);
+            testLabel.push_back(data[data.size() - 1]);
+        }
+    }
 
+    //predict
+    vector<float> predictResult;
+    fill_n(back_inserter(predictResult), testDataSet.size(), 0);
+
+    for (int i = 0; i < mWeakClass.size(); i++) {
+        int index = mWeakClass[i].index;
+        int thresh = mWeakClass[i].thresh;
+        SplitDirection dir = mWeakClass[i].dir;
+
+        vector<float> verifyResult = verifyStump(index, thresh, dir, testDataSet, testDataSet.size());
+        predictResult = add(predictResult, multiply(verifyResult, mWeakClass[i].alpha));
+    }
+
+    //compare with the label
+    vector<float> predictErrors = comparesign(predictResult, testLabel);
+    float errorRate = sum(predictErrors) / testDataSet.size();
+    printf("predict errorRate:%f \n", errorRate);
 }
 
 void AdaBoost::findMinMax(int attrIndx, float& min, float& max)
@@ -110,7 +139,7 @@ Stump AdaBoost::createStump(float& minError, vector<float>& bestPredict)
             //loop two directions
             for (int dir = 0; dir < DIRECTION_NUM; dir++) {
                 float thresh = rangeMin + float(j)*step;
-                vector<float> verifyResult = verifyStump(i, thresh, (SplitDirection)dir);
+                vector<float> verifyResult = verifyStump(i, thresh, (SplitDirection)dir, mDataSet, mDataSetCount);
                 vector<float> verifyError = calcError(verifyResult);
 
                 float error = multiply(verifyError, mWeight);
@@ -127,16 +156,16 @@ Stump AdaBoost::createStump(float& minError, vector<float>& bestPredict)
     return bestStump;
 }
 
-vector<float> AdaBoost::verifyStump(int attrIndex, int thresh, SplitDirection direction)
+vector<float> AdaBoost::verifyStump(int attrIndex, int thresh, SplitDirection direction, vector<vector<float>> dataSet, int dataNum)
 {
     vector<float> verifyResult;
-    fill_n(back_inserter(verifyResult), mDataSetCount, 1);
-    for (int i = 0; i < mDataSetCount; i++) {
+    fill_n(back_inserter(verifyResult), dataNum, 1);
+    for (int i = 0; i < dataNum; i++) {
         if (direction == LESS_THAN) {
-            if (mDataSet[i][attrIndex] < thresh)
+            if (dataSet[i][attrIndex] < thresh)
                 verifyResult[i] = -1;
         } else {
-            if (mDataSet[i][attrIndex] > thresh)
+            if (dataSet[i][attrIndex] > thresh)
                 verifyResult[i] = -1;
         }
     }
@@ -169,7 +198,27 @@ void adaboost_test()
         dataSet.push_back(s);
     }
 
+    fclose(file);
     adaboost->loadDataSet(dataSet);
     adaboost->train(10);
+
+    //load test dataset
+    file = fopen("testdataset.txt", "rt");
+    if (file == NULL) {
+        printf("fail to open testdataset.txt\n");
+        return;
+    }
+
+    vector<string> testDataSet;
+    while (!feof(file)) {
+        memset(strLine, 0, MAX_LINE);
+        fgets(strLine, MAX_LINE, file);
+        string s(strLine);
+        testDataSet.push_back(s);
+    }
+
+    adaboost->predict(testDataSet);
+
+    fclose(file);
     delete adaboost;
 }

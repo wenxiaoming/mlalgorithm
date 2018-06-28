@@ -1,4 +1,4 @@
-#include <limits>
+#include <limits.h>
 #include <math.h>
 #include "adaboost.h"
 #include "../common/math.h"

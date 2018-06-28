@@ -35,7 +35,7 @@ private:
     vector<float> calcError(vector<float> verifyResult);
     void findMinMax(int attrIndx, float& min, float& max);
     Stump createStump(float& minError, vector<float>& bestPredict);
-    vector<float> verifyStump(int attrIndex, int thresh, SplitDirection direction);
+    vector<float> verifyStump(int attrIndex, int thresh, SplitDirection direction, vector<vector<float>> dataSet, int dataNum);
     int mDataSetCount;
     vector<vector<float>> mDataSet;
     vector<float> mLabel;
